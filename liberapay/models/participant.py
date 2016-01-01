@@ -1,15 +1,15 @@
 from __future__ import print_function, unicode_literals
 
-from base64 import b64decode, b64encode
+from base64 import b64encode
 from binascii import hexlify
 from decimal import Decimal, ROUND_DOWN
 from hashlib import pbkdf2_hmac
-from os import urandom
 import pickle
 from time import sleep
 from urllib import quote
 import uuid
 
+from os import urandom
 from aspen import Response
 from aspen.utils import utcnow
 import aspen_jinja2_renderer
@@ -17,7 +17,6 @@ from markupsafe import escape as htmlescape
 from postgres.orm import Model
 from psycopg2 import IntegrityError
 from psycopg2.extras import Json
-
 import liberapay
 from liberapay.billing import mangoapi
 from liberapay.constants import (
@@ -51,7 +50,7 @@ from liberapay.security.crypto import constant_time_compare
 from liberapay.utils import (
     erase_cookie, set_cookie,
     emails, i18n,
-)
+    b64_decode_wrapper)
 
 
 class Participant(Model, MixinTeam):
@@ -173,7 +172,7 @@ class Participant(Model, MixinTeam):
                 return
             algo, rounds, salt, hashed = p.password.split('$', 3)
             rounds = int(rounds)
-            salt, hashed = b64decode(salt), b64decode(hashed)
+            salt, hashed = b64_decode_wrapper(salt), b64_decode_wrapper(hashed)
             if pbkdf2_hmac(algo, v2, salt, rounds) == hashed:
                 p.authenticated = True
                 return p
